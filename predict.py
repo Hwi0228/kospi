@@ -26,9 +26,9 @@ regr = SVR(kernel='rbf', C=5, epsilon=0)
 regr.fit(time_scaled, price_scaled.ravel()) 
 
 #=============== 스타일 ==================#
-plt.style.use('seaborn-v0_8-whitegrid')
+plt.style.use('fivethirtyeight')
 plt.rcParams['font.family'] ='Malgun Gothic'
-plt.rcParams['axes.unicode_minus'] =False
+plt.rcParams['axes.unicode_minus'] = False
 colors = cmap = plt.get_cmap('seismic')
 #===========================================#
 
@@ -45,5 +45,19 @@ y_pred_scaled = regr.predict(predict_time_scaled)
 
 y_pred = scaler_y.inverse_transform(y_pred_scaled.reshape(-1, 1))
 
-plt.plot(predict_time, y_pred, 'r')
+plt.plot(predict_time, y_pred, 'tab:orange')
+
+future_dates = [data['Date'].iloc[-1] + pd.Timedelta(days=i) for i in range(1, 3650)]
+all_dates = list(data['Date']) + future_dates
+
+indices = [int(x) for x in np.linspace(0, len(predict_time) - 1, 6)]
+ticks = [predict_time[i][0] for i in indices]
+labels = [pd.to_datetime(all_dates[i]).strftime('%Y-%m-%d') for i in indices]
+
+plt.xticks(ticks, labels, rotation=45)
+
+
+plt.savefig('kospi_prediction.png', dpi=300, bbox_inches='tight')
+# ============================================
+
 plt.show()
