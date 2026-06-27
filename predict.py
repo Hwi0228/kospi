@@ -1,21 +1,26 @@
 import numpy as np
-from sklearn import linear_model
+from sklearn import linear_model, preprocessing
 import matplotlib.pyplot as plt
 import yfinance as yf
 import pandas as pd
 
-kospi = yf.Ticker('000660.KS')
-data = kospi.history(period='1mo')
+kospi = yf.Ticker('^KS11')
+data = kospi.history(start="2025-06-27",end="2026-06-27")
 data = data.reset_index()
 
 price = data['Close'].values.tolist()
 price = [[x] for x in price]
-print(price)
-time = data['Date'].dt.dayofyear.values.tolist()
-time = [[x] for x in time]
-print(time)
+
+time_day = data['Date'].dt.dayofyear.values.tolist()
+time_year = data['Date'].dt.year.values.tolist()
+time = [[sum(x)] for x in zip(time_day+time_year)]
+
+poly_feature = preprocessing.PolynomialFeatures(degree=2, include_bias=False)
+time_poly = poly_feature.fit_transform(time)
+print('A_poly =', time_poly)
+
 regr = linear_model.LinearRegression()
-regr.fit(time, price)
+regr.fit(time_poly, price)
 print(f'y={regr.coef_}x + {regr.intercept_}')
 #=============== 스타일 ==================#
 plt.style.use('seaborn-v0_8-whitegrid')
@@ -25,7 +30,10 @@ colors = cmap = plt.get_cmap('seismic')
 #===========================================#
 
 plt.scatter(time, price)
-predict_time = [[x[0]+31] for x in time]
-price_pred = regr.predict(predict_time)
-plt.plot(predict_time, price_pred)
+predict_time = time.copy()
+predict_time.extend([[x[0]+31] for x in time])
+print(predict_time)
+predict_time_poly = poly_feature.fit_transform(predict_time)
+y_pred = regr.predict(predict_time_poly)
+plt.plot(predict_time, y_pred, 'r')
 plt.show()
