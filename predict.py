@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 import pandas as pd
 
-kospi = yf.Ticker('^KS11')
+kospi = yf.Ticker('000660.KS')
 data = kospi.history(period='1mo')
 data = data.reset_index()
 
@@ -25,6 +25,7 @@ colors = cmap = plt.get_cmap('seismic')
 #===========================================#
 
 plt.scatter(time, price)
-price_pred = regr.predict(time)
-plt.plot(time, price_pred)
+predict_time = [[x[0]+31] for x in time]
+price_pred = regr.predict(predict_time)
+plt.plot(predict_time, price_pred)
 plt.show()
