@@ -3,21 +3,20 @@ from sklearn import linear_model
 import matplotlib.pyplot as plt
 import yfinance as yf
 import pandas as pd
-import datetime
 
-kospi =  yf.Ticker('^KS11')
+kospi = yf.Ticker('^KS11')
 data = kospi.history(period='1mo')
 data = data.reset_index()
-print(data)
+
 price = data['Close'].values.tolist()
-price = [x for x in price]
-
+price = [[x] for x in price]
+print(price)
 time = data['Date'].dt.dayofyear.values.tolist()
-time = [[x] for x in price]
-
+time = [[x] for x in time]
+print(time)
 regr = linear_model.LinearRegression()
 regr.fit(time, price)
-
+print(f'y={regr.coef_}x + {regr.intercept_}')
 #=============== 스타일 ==================#
 plt.style.use('seaborn-v0_8-whitegrid')
 plt.rcParams['font.family'] ='Malgun Gothic'
@@ -26,6 +25,6 @@ colors = cmap = plt.get_cmap('seismic')
 #===========================================#
 
 plt.scatter(time, price)
-price_pred = regr.predict(price)
+price_pred = regr.predict(time)
 plt.plot(time, price_pred)
 plt.show()
